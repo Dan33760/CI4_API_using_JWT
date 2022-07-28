@@ -53,4 +53,6 @@ class UserBoutiqueModel extends Model
         $boutique = $model->where('REF_USER', $id_user)->findAll();
         return $boutique;
     }
+
+    
 }

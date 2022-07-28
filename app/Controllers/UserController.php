@@ -91,8 +91,6 @@ class UserController extends ResourceController
             helper('jwt');
 
             return $this->getResponse([
-                'message' => 'Utilisateur connecter avec success',
-                'user' => $user,
                 'access_token' => getSignedJWTForUser($id, $email, $role),
             ]);
         } catch(Exception $exception) {
@@ -112,49 +110,44 @@ class UserController extends ResourceController
         $data = [];
         $roleModel = new RoleModel();
 
-        if($this->request->getPost())
-        {
-            $rules = [
-                'role' => 'required',
-                'nom' => 'required|min_length[3]|max_length[50]',
-                'postnom' => 'required|max_length[50]',
-                'email' => 'required|min_length[3]|max_length[50]|valid_email|is_unique[users.EMAIL_USER]',
-                'mdp' => 'required|max_length[50]',
-                'mdp_confirm' => 'matches[mdp]',
+        $rules = [
+            'role' => 'required|integer',
+            'nom' => 'required|min_length[3]|max_length[50]',
+            'postnom' => 'required|max_length[50]',
+            'email' => 'required|min_length[3]|max_length[50]|valid_email|is_unique[users.EMAIL_USER]',
+            'mdp' => 'required|max_length[50]',
+            'mdp_confirm' => 'matches[mdp]',
 
+        ];
+
+        $input = $this->getRequestInput($this->request);
+
+        if(!$this->validateRequest($input, $rules))
+        {
+            return $this->getResponse($this->validator->getErrors(), ResponseInterface::HTTP_BAD_REQUEST);
+        }else{
+
+            $client = [
+                'REF_ROLE_USER' => $this->request->getVar('role'),
+                'NOM_USER' => $this->request->getVar('nom'),
+                'POSTNOM_USER' => $this->request->getVar('postnom'),
+                'EMAIL_USER' => $this->request->getVar('email'),
+                'MDP_USER' => $this->request->getVar('mdp'),
             ];
 
-            $input = $this->getRequestInput($this->request);
+            $clientModel = new UserModel();
+            $clientModel->insert($client);
 
-            if(!$this->validateRequest($input, $rules))
-            {
-                return $this->getResponse($this->validator->getErrors(), ResponseInterface::HTTP_BAD_REQUEST);
-            }else{
+            $message = ['Client creer avec success'];
+            return $this->getResponse($message, ResponseInterface::HTTP_CREATED);
 
-                $client = [
-                    'REF_ROLE_USER' => $this->request->getVar('role'),
-                    'NOM_USER' => $this->request->getVar('nom'),
-                    'POSTNOM_USER' => $this->request->getVar('postnom'),
-                    'EMAIL_USER' => $this->request->getVar('email'),
-                    'MDP_USER' => $this->request->getVar('mdp'),
-                ];
-
-                $clientModel = new UserModel();
-                $clientModel->insert($client);
-
-                return $this->getResponse('Client creer avec success', ResponseInterface::HTTP_CREATED);
-
-            }
         }
-
-        // $data['roles'] = $roleModel->get_client_tenant();
-        // return view('create_count', $data);
     }
     
     // Detail et mofification du profil
-    public function profil()
+    public function profil($id_user)
     {
-        $current_user = $this->payload()->id;
+        // $current_user = $this->payload()->id;
         $userModel = new UserModel();
         $data = [];
 
@@ -182,7 +175,7 @@ class UserController extends ResourceController
 
                 $clientModel = new UserModel();
 
-                $save = $clientModel->update($current_user,$client);
+                $save = $clientModel->update($id_user,$client);
 
                 if($save) {
                     $data['success'] = "Profil modifié";
@@ -192,7 +185,7 @@ class UserController extends ResourceController
             }
         }
 
-        $data['user'] = $userModel->find($current_user);
+        $data['user'] = $userModel->find($id_user);
 
         return $this->getResponse($data);
     }
@@ -237,6 +230,18 @@ class UserController extends ResourceController
         $delete = $userModel->soft_delete($current_user);
 
         return $this->respondDeleted($delete);
+    }
+
+    //== Suppression d'un utilisateur
+    public function user_delete($id)
+    {
+        $clientModel = new UserModel();
+        $data = ['ETAT_USER' => 0];
+        $active = $clientModel->update($id, $data);
+
+        $response = ['message' => 'Utilisateur supprimé'];
+
+        return $this->getResponse($response, ResponseInterface::HTTP_OK);
     }
 
     // Se deconnecter

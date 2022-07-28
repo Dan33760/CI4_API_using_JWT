@@ -40,78 +40,72 @@ $routes->get('/', 'Home::index');
 //-------------------Login route
 // $routes->match(['get', 'post'], 'login', 'UserController::login', ["filter" => "noauth"]);
 $routes->add('login', 'UserController::login');
-$routes->add('create_count', 'UserController::create_count');
+$routes->post('create_count', 'UserController::create_count');
 $routes->get("delete_count", "UserController::delete_count");
 $routes->get('logout', 'UserController::logout');
+$routes->match(['get', 'post'], "profil/(:num)", "UserController::profil/$1");
+$routes->get("user_active/(:num)", "AdminController::user_active/$1");
+$routes->get("produit", "ProduitController::index");
+$routes->get("user_delete/(:num)", "UserController::user_delete/$1");
+
+
+
+
+// -- routes pour le controller boutique
+$routes->group('boutique', function($routes) {
+    $routes->get("active_store/(:num)", "BoutiqueController::active_store/$1");
+    $routes->get("boutique_view/(:num)", "BoutiqueController::boutique_view/$1");
+    $routes->get("boutique_delete/(:num)", "BoutiqueController::deleteBoutique/$1");
+    $routes->get("update_picture/(:num)", "UserController::update_picture/$1");///////////////////////////////////////////
+});
 
 //-------------------Admin Routes
 $routes->group("admin", function ($routes) {
-
+    
     // -- routes pour le controller admin
     $routes->get("/", "AdminController::index");
-    $routes->match(['get', 'post'], "users", "AdminController::users");
-    $routes->get("user_active/(:num)", "AdminController::user_active/$1");
-    $routes->get("user_delete/(:num)", "AdminController::user_delete/$1");
-    $routes->match(['get', 'post'], "user_add", "AdminController::user_add");
-    $routes->match(['get', 'post'], "boutiques/(:num)", "AdminController::boutiques/$1");
-
-    // -- routes pour le controller boutique
-    $routes->get("boutique_active/(:num)/(:num)", "BoutiqueController::boutique_active_admin/$1/$2");
-    $routes->get("boutique_view/(:num)/(:num)", "BoutiqueController::boutique_view_admin/$1/$2");
-    $routes->get("boutique_delete/(:num)/(:num)", "BoutiqueController::boutique_delete_admin/$1/$2");
-
+    $routes->get("users", "AdminController::users");
+    $routes->get("get_roles", "AdminController::get_roles");
+    $routes->post("user_add", "AdminController::user_add");
+    $routes->get("boutiques/(:num)", "AdminController::boutiques/$1");
+    
     // -- routes pour le controller User
-    $routes->match(['get', 'post'], "profil", "UserController::profil");
-    $routes->match(['get', 'post'], "update_picture", "UserController::update_picture");
-
 });
+
 //--------------------Tenant routes
 $routes->group("tenant", function ($routes) {
     $routes->get("/", "TenantController::index");
 
     // -- routes pour le controller boutique
     $routes->match(['get', 'post'], "boutique", "BoutiqueController::index");
-    $routes->match(['get', 'post'], "boutique_edit/(:num)", "BoutiqueController::boutique_edit/$1");
-    $routes->get("boutique_active/(:num)", "BoutiqueController::boutique_active/$1");
-    $routes->get("boutique_view/(:num)", "BoutiqueController::boutique_view/$1");
-    $routes->get("boutique_delete/(:num)", "BoutiqueController::boutique_delete/$1");
+    $routes->post("boutique_edit/(:num)", "BoutiqueController::boutique_edit/$1");
     
     // -- routes pour le controller produit
-    $routes->get("produit", "ProduitController::index");
     $routes->post("produit_add/(:num)", "ProduitController::produit_add/$1");
-    $routes->match(['get', 'post'], "produit_edit/(:num)/(:num)", "ProduitController::produit_edit/$1/$2");
-    $routes->get("produit_active/(:num)/(:num)", "ProduitController::produit_active/$1/$2");
-    $routes->get("produit_delete/(:num)/(:num)", "ProduitController::produit_delete/$1/$2");
+    $routes->post("produit_edit/(:num)/(:num)", "ProduitController::produit_edit/$1/$2");
+    $routes->get("produit_active/(:num)", "ProduitController::produit_active/$1");
+    $routes->get("produit_delete/(:num)", "ProduitController::produit_delete/$1");
     
     // -- routes pour le controller client
-    $routes->match(['get', 'post'], "client", "ClientController::index");
+    $routes->match(['get', 'post'], "client", "ClientController::index");/////////////////////////////////////////
     $routes->post("client_add/(:num)", "ClientController::client_add/$1");
-    $routes->get("client_active/(:num)/(:num)", "ClientController::client_active/$1/$2");
-    $routes->get("client_delete/(:num)/(:num)", "ClientController::client_delete/$1/$2");
-
-    // -- routes pour le controller User
-    $routes->match(['get', 'post'], "profil", "UserController::profil");
-    $routes->match(['get', 'post'], "update_picture", "UserController::update_picture");
-    
+    $routes->get("client_active/(:num)", "ClientController::client_active/$1");
 });
 //--------------------Client routes
 $routes->group("client", function ($routes) {
-    $routes->get("/", "ClientController::index");
+    $routes->get("get_boutiques", "ClientController::index");
     $routes->get("add_boutique/(:num)", "ClientController::add_boutique/$1");
     $routes->get("view_produit/(:num)", "ClientController::view_produit/$1");
-    $routes->match(['get', 'post'], "view_produit_client/(:num)", "ClientController::view_produit_client/$1");
-    $routes->match(['get', 'post'], "boutique", "ClientController::boutique");
+    $routes->match(['get', 'post'], "user_boutique", "ClientController::boutique");
     
-    // -- routes pour le controller panier
+    // -- routes pour le controller panier // =========/////////////////////==========////////////////////=========/////////////
+    $routes->post("add_panier/(:num)", "PanierController::add_panier/$1");
     $routes->match(['get', 'post'], "panier_client/(:num)", "PanierController::panier_client/$1");
     $routes->match(['get', 'post'], "panier_detail/(:num)/(:num)", "PanierController::panier_detail/$1/$2");
     $routes->get("panier_delete_produit/(:num)/(:num)/(:num)", "PanierController::panier_delete_produit/$1/$2/$3");
     $routes->get("valider_panier/(:num)/(:num)", "PanierController::valider_panier/$1/$2");
     $routes->get("panier", "PanierController::panier");
 
-    // -- routes pour le controller User
-    $routes->match(['get', 'post'], "profil", "UserController::profil");
-    $routes->post("update_picture", "UserController::update_picture");
 });
 /*
  * --------------------------------------------------------------------

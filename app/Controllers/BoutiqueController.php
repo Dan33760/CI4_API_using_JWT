@@ -19,7 +19,7 @@ class BoutiqueController extends ResourceController
     // ---- payload data from request ----------
     public function userPayload()
     {
-        helper('jwt');
+        helper('jwt'); 
         $authenticationHeader = $this->request->getServer('HTTP_AUTHORIZATION');
         return $decodedToken = getUserPayload($authenticationHeader);
     }
@@ -74,56 +74,48 @@ class BoutiqueController extends ResourceController
         $data = [];
         $boutiqueModel = new BoutiqueModel();
 
-        if($this->request->getPost())
+        $rules = [
+            'designation' => 'required|min_length[3]|max_length[50]',
+            'description' => 'required|min_length[3]'
+        ];
+
+        $input = $this->getRequestInput($this->request);
+
+        if(!$this->validateRequest($input, $rules))
         {
-            $rules = [
-                'designation' => 'required|min_length[3]|max_length[50]',
-                'description' => 'required|min_length[3]'
+            return $this->getResponse($this->validator->getErrors(), ResponseInterface::HTTP_BAD_REQUEST);
+        }else{
+            $boutiqueModel = new BoutiqueModel();
+
+            $boutique = [
+                'DESIGNATION_BOUTIQUE' => $this->request->getVar('designation'),
+                'DESCRIPTION_BOUTIQUE' => $this->request->getVar('description'),
             ];
+            $update = $boutiqueModel->update_boutique($id, $boutique);
 
-            $input = $this->getRequestInput($this->request);
-
-            if(!$this->validateRequest($input, $rules))
-            {
-                return $this->getResponse($this->validator->getErrors(), ResponseInterface::HTTP_BAD_REQUEST);
-            }else{
-                $boutiqueModel = new BoutiqueModel();
-
-                $boutique = [
-                    'DESIGNATION_BOUTIQUE' => $this->request->getVar('designation'),
-                    'DESCRIPTION_BOUTIQUE' => $this->request->getVar('description'),
-                ];
-                $update = $boutiqueModel->update_boutique($id, $boutique);
-
-                $response = ['message' => 'Boutique modifiee avec success'];
-                return $this->getResponse($response, ResponseInterface::HTTP_CREATED);
-            }
+            $response = ['message' => 'Boutique modifiee avec success'];
+            return $this->getResponse($response, ResponseInterface::HTTP_CREATED);
         }
-
-        $data['id'] = $id;
-        $data['boutique'] = $boutiqueModel->get_one($id);
-
-        return $this->getResponse($data, ResponseInterface::HTTP_CREATED);
     }
 
     //== activer ou desactiver une boutique par un tenant
-    public function boutique_active($id)
-    {
-        $this->active($id);
-        $response = ['message' => 'Etat boutique modifié'];
-        return $this->getResponse($response, ResponseInterface::HTTP_OK);
-    }
+    // public function boutique_active($id)
+    // {
+    //     $this->active_store($id);
+    //     $response = ['message' => 'Etat boutique modifié'];
+    //     return $this->getResponse($response, ResponseInterface::HTTP_OK);
+    // }
 
-    //== activer ou desactiver une boutique par un tenant
-    public function boutique_active_admin($id_tenant,$id_store)
-    {
-        $this->active($id_store);
-        $response = ['message' => 'Etat boutique modifié'];
-        return $this->getResponse($response, ResponseInterface::HTTP_OK);
-    }
+    // //== activer ou desactiver une boutique par un tenant
+    // public function boutique_active_admin($id_tenant,$id_store)
+    // {
+    //     $this->active_store($id_store);
+    //     $response = ['message' => 'Etat boutique modifié'];
+    //     return $this->getResponse($response, ResponseInterface::HTTP_OK);
+    // }
 
     //== Activation et desactivation d'une boutique 
-    public function active($id)
+    public function active_store($id)
     {
         $state = null;
         $boutiqueModel = new BoutiqueModel();
@@ -131,14 +123,16 @@ class BoutiqueController extends ResourceController
 
         if($boutique['ETAT_BOUTIQUE'] == 1) {
             $state = 2;
+            $response = ['message' => 'Boutique activé'];
         }
         if($boutique['ETAT_BOUTIQUE'] == 2) {
             $state = 1;
+            $response = ['message' => 'Boutique desactivé'];
         }
         $data = ['ETAT_BOUTIQUE' => $state];
-
         $active = $boutiqueModel->update_boutique($id, $data);
-        return $active;
+        
+        return $this->getResponse($response, ResponseInterface::HTTP_OK);
     }
 
     //== supprimer par le tenant
@@ -166,7 +160,9 @@ class BoutiqueController extends ResourceController
         $boutiqueModel = new BoutiqueModel();
         $data = ['ETAT_BOUTIQUE' => 0];
         $delete = $boutiqueModel->update_boutique($id, $data);
-        return $delete;
+        
+        return $this->getResponse(['message' => 'Boutique Supprimer'], ResponseInterface::HTTP_OK);
+
     }
 
     // Details d'une boutique pour un tenant
@@ -190,24 +186,4 @@ class BoutiqueController extends ResourceController
         return $this->getResponse($data, ResponseInterface::HTTP_OK);
     }
 
-    // Details d'une boutique pour l'admin
-    public function boutique_view_admin($id_tenant,$id_store)
-    {
-        $roleModel = new RoleModel;
-        $produitModel = new ProduitModel();
-        $userModel = new UserModel();
-
-        $data = [];
-        $data['id'] = $id_store;
-
-        $data['roles'] = $roleModel->get_role();
-
-        $data['produits'] = $produitModel->get_by_store($id_store);
-        $data['count_produit'] = $produitModel->get_count($id_store);
-
-        $data['clients'] = $userModel->get_by_store($id_store);
-        $data['count_client'] = $userModel->count_client($id_store);
-
-        return $this->getResponse($data, ResponseInterface::HTTP_OK);
-    }
 }

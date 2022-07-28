@@ -21,9 +21,6 @@ class UserRules
             return false;
         }
 
-        // $password = password_hash($data['password'], PASSWORD_DEFAULT);
-
-        // return password_verify($password, $user['MDP_USER']);
         return password_verify($data['password'], $user['MDP_USER']);
 
     }

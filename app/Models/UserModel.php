@@ -75,6 +75,13 @@ class UserModel extends Model
         return $query->getRow();
     }
 
+    // == Recupere tous les utilisateurs actifs ====
+    public function get_users()
+    {
+        $userModel = new UserModel();
+        return $users = $userModel->where('ETAT_USER >=', 1)->findAll();
+    }
+
     //== recupere tous les utilisateur
     public function get_all_users()
     {

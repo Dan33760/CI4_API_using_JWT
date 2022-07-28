@@ -24,17 +24,19 @@ class AdminController extends ResourceController
     {
         $data = [];
         $userModel = new UserModel();
-        $roleModel = new RoleModel();
-
-        $data['page'] = isset($_GET['page']) ? $_GET['page'] : 1;
-        $data['perPage'] = 10;
-        $data['total'] = $userModel->where('ETAT_USER >=', 1)->countAll();
-        $data['users'] = $userModel->where('ETAT_USER >=', 1)->paginate($data['perPage']);
-        $data['pager'] = $userModel->pager;
-
-        $data['roles'] = $roleModel->get_all();
+        $data['users'] = $userModel->get_all_users();
 
         return $this->getResponse($data, ResponseInterface::HTTP_OK);
+    }
+
+    //-- List des roles ----
+    public function get_roles()
+    {
+        $roleModel = new RoleModel();
+
+        $data['roles'] = $roleModel->get_all();
+        return $this->getResponse($data, ResponseInterface::HTTP_OK);
+
     }
 
     //== list des boutiques d'un tenant pour l'admin
@@ -50,42 +52,38 @@ class AdminController extends ResourceController
 
     }
 
-    //enregistrement d'un client par un tenant
+    //enregistrement d'un utilisateur
     public function user_add()
     {
-        if($this->request->getPost())
+        $rules = [
+            'role' => 'required|integer',
+            'nom' => 'required|min_length[3]|max_length[50]',
+            'postnom' => 'required|max_length[50]',
+            'email' => 'required|min_length[3]|max_length[50]|valid_email|is_unique[users.EMAIL_USER]',
+            'mdp' => 'required|min_length[3]|max_length[255]',
+        ];
+
+        $input = $this->getRequestInput($this->request);
+
+        if(!$this->validateRequest($input, $rules))
         {
-            $rules = [
-                'role' => 'required',
-                'nom' => 'required|min_length[3]|max_length[50]',
-                'postnom' => 'required|max_length[50]',
-                'email' => 'required|min_length[3]|max_length[50]|valid_email|is_unique[users.EMAIL_USER]',
+            return $this->getResponse($this->validator->getErrors(), ResponseInterface::HTTP_BAD_REQUEST);
+        }else{
+
+            $user = [
+                'REF_ROLE_USER' => $this->request->getVar('role'),
+                'NOM_USER' => $this->request->getVar('nom'),
+                'POSTNOM_USER' => $this->request->getVar('postnom'),
+                'EMAIL_USER' => $this->request->getVar('email'),
+                'MDP_USER' => $this->request->getVar('mdp'),
             ];
 
-            $input = $this->getRequestInput($this->request);
+            $userModel = new UserModel();
+            $save = $userModel->insert($user);
+            $response = ['message' => 'Utilisateur creer avec success'];
 
-            if(!$this->validateRequest($input, $rules))
-            {
-                return $this->getResponse($this->validator->getErrors(), ResponseInterface::HTTP_BAD_REQUEST);
-            }else{
-
-                $user = [
-                    'REF_ROLE_USER' => $this->request->getVar('role'),
-                    'NOM_USER' => $this->request->getVar('nom'),
-                    'POSTNOM_USER' => $this->request->getVar('postnom'),
-                    'EMAIL_USER' => $this->request->getVar('email'),
-                    'MDP_USER' => $this->request->getVar('mdp'),
-                ];
-
-                $userModel = new UserModel();
-                $save = $userModel->insert($user);
-                $response = ['message' => 'Utilisateur creer avec success'];
-
-                return $this->getResponse($response, ResponseInterface::HTTP_CREATED);
-            }
+            return $this->getResponse($response, ResponseInterface::HTTP_CREATED);
         }
-        $response = ['message' => 'Ajouter un utilisateur'];
-        return $this->getResponse($response, ResponseInterface::HTTP_OK);
     }
 
     //== Activation d'un utilisateur
@@ -94,19 +92,21 @@ class AdminController extends ResourceController
         $state = null;
         $clientModel = new UserModel();
         $client = $clientModel->find($id);
+        $message = [];
 
         if($client['ETAT_USER'] == 1) {
             $state = 2;
+            $message = ['message' => 'Compte desactivé'];
         }
         if($client['ETAT_USER'] == 2) {
             $state = 1;
+            $message = ['message' => 'Compte activé'];
         }
         $data = ['ETAT_USER' => $state];
 
         $active = $clientModel->update($id, $data);
-        $response = ['message' => 'Etat utilisateur modifié'];
 
-        return $this->getResponse($response, ResponseInterface::HTTP_OK);
+        return $this->getResponse($message, ResponseInterface::HTTP_OK);
 
     }
 

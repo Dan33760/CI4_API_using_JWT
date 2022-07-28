@@ -47,7 +47,7 @@ class ClientController extends ResourceController
         if($this->request->getPost())
         {
             $rules = [
-                'role' => 'required',
+                'role' => 'required|integer',
                 'nom' => 'required|min_length[3]|max_length[50]',
                 'postnom' => 'required|max_length[50]',
                 'email' => 'required|min_length[3]|max_length[50]|valid_email',
@@ -87,7 +87,7 @@ class ClientController extends ResourceController
     }
 
     //== Activation et desactivation du compte client par un tenant
-    public function client_active($store, $id)
+    public function client_active($id)
     {
         $state = null;
         $clientModel = new UserModel();
@@ -95,20 +95,21 @@ class ClientController extends ResourceController
 
         if($client['ETAT_USER'] == 1) {
             $state = 2;
+            $response = ['message' => 'Compte client desactivé'];
         }
         if($client['ETAT_USER'] == 2) {
             $state = 1;
+            $response = ['message' => 'Compte client activé'];
         }
         $data = ['ETAT_USER' => $state];
 
         $active = $clientModel->update($id, $data);
 
-        $response = ['message' => 'Etat client modifie avec success'];
         return $this->getResponse($response, ResponseInterface::HTTP_OK);
     }
 
     //== Suppression d'un client par un tenant (softDelete)
-    public function client_delete($store, $id)
+    public function client_delete($id)
     {
         $clientModel = new UserModel();
         $data = ['ETAT_USER' => 0];
@@ -170,58 +171,5 @@ class ClientController extends ResourceController
 
         return $this->getResponse($data, ResponseInterface::HTTP_OK);
         
-    }
-
-    // Liste des produits et Ajout d'un panier
-    public function view_produit_client($id_store)
-    {
-        $current_user = $this->userPayload()->id;
-        $data = [];
-        $produitModel = new Produitmodel();
-
-        if($this->request->getPost())
-        {
-            $rules = [
-                'designation' => 'required|min_length[3]|max_length[50]',
-                'id_produit' => 'required',
-                'pu_produit' => 'required',
-                'qu_produit' => 'required',
-            ];
-            $input = $this->getRequestInput($this->request);
-
-            if(!$this->validateRequest($input, $rules))
-            {
-                return $this->getResponse($this->validator->getErrors(), ResponseInterface::HTTP_BAD_REQUEST);
-            }else{
-                $panier = [
-                    'REF_USER_PANIER' => $this->userPayload()->id,
-                    'DESIGNATION_PANIER' => $this->request->getVar('designation'),
-                ];
-
-                $panierModel = new PanierModel();
-                $save_panier = $panierModel->insert($panier);
-
-                for($i = 0; $i < count($this->request->getVar('id_produit')); $i++)
-                {
-                    $panier_produit[] = [
-                        'REF_PANIER' => $save_panier,
-                        'REF_PRODUIT' => (int) $this->request->getVar('id_produit')[$i],
-                        'PU_PANIER' => (int) $this->request->getVar('pu_produit')[$i],
-                        'QUANTITE_PRODUIT_PANIER' => (int) $this->request->getVar('qu_produit')[$i],
-                        'PT_PANIER' => (int) $this->request->getVar('qu_produit')[$i] * (int) $this->request->getVar('pu_produit')[$i]
-                    ];
-                }
-
-                $panierProduitModel = new PanierProduitModel();
-                $save_panier_produit = $panierProduitModel->insertBatch($panier_produit);
-
-                $response = ['Message' => 'Panier ajoute'];
-                return $this->getResponse($response, ResponseInterface::HTTP_OK);
-
-            }
-        }
-
-        $data['produits'] = $produitModel->get_by_store($id_store);
-        return $this->getResponse($data, ResponseInterface::HTTP_OK);
     }
 }

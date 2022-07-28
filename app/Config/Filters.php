@@ -80,7 +80,13 @@ class Filters extends BaseConfig
                 'client/*',
                 'client',
                 'tenant/*',
-                'tenant'
+                'tenant',
+                'boutique/*',
+                'profil/*',
+                'user_active/*',
+                'user_delete/*',
+                'produit',
+                'user_delete/*'
             ]
         ]
     ];

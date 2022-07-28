@@ -13,10 +13,11 @@ class JWTAuthenticationFilter implements FilterInterface
 {
     use ResponseTrait;
 
+    //------- Verification de la requete avant d'acceder aux donnees ----------
     public function before(RequestInterface $request, $arguments = null)
     {
         $authenticationHeader = $request->getServer('HTTP_AUTHORIZATION');
-
+        
         try {
             helper('jwt');
             $encodedToken = getJWTFromRequest($authenticationHeader);
