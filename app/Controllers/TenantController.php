@@ -33,10 +33,6 @@ class TenantController extends ResourceController
 
         $data['count_boutique'] = $boutiqueModel->count_by_user($current_user);
 
-        // ----- Utilisation Template --------
-        // return view('tenant/dashboard', $data);
-
-        // ------ Utilisation API --------
         return $this->getReaponse($data, ResponseInterface::HTTP_OK);
 
     }

@@ -39,7 +39,7 @@ $routes->get('/', 'Home::index');
 
 //-------------------Login route
 // $routes->match(['get', 'post'], 'login', 'UserController::login', ["filter" => "noauth"]);
-$routes->add('login', 'UserController::login');
+$routes->post('login', 'UserController::login');
 $routes->post('create_count', 'UserController::create_count');
 $routes->get("delete_count", "UserController::delete_count");
 $routes->get('logout', 'UserController::logout');
@@ -98,12 +98,12 @@ $routes->group("client", function ($routes) {
     $routes->get("view_produit/(:num)", "ClientController::view_produit/$1");
     $routes->match(['get', 'post'], "user_boutique", "ClientController::boutique");
     
-    // -- routes pour le controller panier // =========/////////////////////==========////////////////////=========/////////////
+    // -- routes pour le controller panier 
     $routes->post("add_panier/(:num)", "PanierController::add_panier/$1");
-    $routes->match(['get', 'post'], "panier_client/(:num)", "PanierController::panier_client/$1");
-    $routes->match(['get', 'post'], "panier_detail/(:num)/(:num)", "PanierController::panier_detail/$1/$2");
-    $routes->get("panier_delete_produit/(:num)/(:num)/(:num)", "PanierController::panier_delete_produit/$1/$2/$3");
-    $routes->get("valider_panier/(:num)/(:num)", "PanierController::valider_panier/$1/$2");
+    $routes->get("panier_client/(:num)", "PanierController::panier_client/$1");
+    $routes->match(['get', 'post'], "panier_detail/(:num)", "PanierController::panier_detail/$1");
+    $routes->get("panier_delete_produit/(:num)/(:num)", "PanierController::panier_delete_produit/$1/$2");
+    $routes->get("valider_panier/(:num)", "PanierController::valider_panier/$1");
     $routes->get("panier", "PanierController::panier");
 
 });

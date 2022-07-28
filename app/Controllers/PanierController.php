@@ -32,7 +32,7 @@ class PanierController extends ResourceController
      {
          $data = [];
          $produitModel = new Produitmodel();
-       
+    
          $rules = [
              'designation' => 'required|min_length[3]|max_length[50]',
              'id_produit' => 'required',
@@ -76,7 +76,7 @@ class PanierController extends ResourceController
     // Liste des panier d'un client dans une boutique
     public function panier_client($id_store)
     {
-        $current_user = $this->userPayload()->id;
+        $current_user[] = $this->userPayload()->id;
         $data = [];
         $panierModel = new PanierModel();
         $data['paniers'] = $panierModel->get_by_user($current_user, $id_store);
@@ -86,7 +86,7 @@ class PanierController extends ResourceController
     }
 
     //== Voir les details et modifier un panier
-    public function panier_detail($id_store,$id_panier)
+    public function panier_detail($id_panier)
     {
         $current_user = $this->userPayload()->id;
         $data = [];
@@ -129,6 +129,7 @@ class PanierController extends ResourceController
                     $data['error'] = "Panier non modifier";
                 }
 
+                return $this->getResponse($data, ResponseInterface::HTTP_OK);
             }
         }
 
@@ -139,7 +140,7 @@ class PanierController extends ResourceController
     }
 
     //== Supprimer un produit du panier
-    public function panier_delete_produit($id_store,$id_panier,$id_produit)
+    public function panier_delete_produit($id_panier,$id_produit)
     {
         $panierProduitModel = new PanierProduitmodel();
         $delete = $panierProduitModel->delete_produit($id_panier, $id_produit);
@@ -149,7 +150,7 @@ class PanierController extends ResourceController
     }
 
     //== Valider un panier
-    public function valider_panier($id_store,$id_panier)
+    public function valider_panier($id_panier)
     {
         $panierModel = new PanierModel();
         $valider = $panierModel->validate_panier($id_panier);
