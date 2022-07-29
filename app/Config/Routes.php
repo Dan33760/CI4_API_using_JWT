@@ -46,6 +46,7 @@ $routes->match(['get', 'post'], "profil/(:num)", "UserController::profil/$1");
 $routes->get("user_active/(:num)", "AdminController::user_active/$1");
 $routes->get("produit", "ProduitController::index");
 $routes->delete("user_delete/(:num)", "UserController::user_delete/$1");
+$routes->post("update_picture", "UserController::update_picture");
 
 
 // -- routes pour le controller boutique
@@ -53,7 +54,6 @@ $routes->group('boutique', function($routes) {
     $routes->get("active_store/(:num)", "BoutiqueController::active_store/$1");
     $routes->get("boutique_view/(:num)", "BoutiqueController::boutique_view/$1");
     $routes->delete("boutique_delete/(:num)", "BoutiqueController::deleteBoutique/$1");
-    $routes->get("update_picture/(:num)", "UserController::update_picture/$1");///////////////////////////////////////////
 });
 
 //-------------------Admin Routes
@@ -88,6 +88,7 @@ $routes->group("tenant", function ($routes) {
     $routes->post("client_add/(:num)", "ClientController::client_add/$1");
     $routes->get("client_active/(:num)", "ClientController::client_active/$1");
 });
+
 //--------------------Client routes
 $routes->group("client", function ($routes) {
     $routes->get("get_boutiques", "ClientController::index");

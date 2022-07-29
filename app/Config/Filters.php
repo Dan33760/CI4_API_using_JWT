@@ -86,7 +86,8 @@ class Filters extends BaseConfig
                 'user_active/*',
                 'user_delete/*',
                 'produit',
-                'user_delete/*'
+                'user_delete/*',
+                'update_picture'
             ]
         ]
     ];
