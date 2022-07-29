@@ -221,17 +221,6 @@ class UserController extends ResourceController
 
     }
 
-    // Suppression du compte d'un client
-    public function delete_count()
-    {
-        $current_user = $this->userPayload()->id;
-        $userModel = new UserModel();
-
-        $delete = $userModel->soft_delete($current_user);
-
-        return $this->respondDeleted($delete);
-    }
-
     //== Suppression d'un utilisateur
     public function user_delete($id)
     {

@@ -41,21 +41,18 @@ $routes->get('/', 'Home::index');
 // $routes->match(['get', 'post'], 'login', 'UserController::login', ["filter" => "noauth"]);
 $routes->post('login', 'UserController::login');
 $routes->post('create_count', 'UserController::create_count');
-$routes->get("delete_count", "UserController::delete_count");
 $routes->get('logout', 'UserController::logout');
 $routes->match(['get', 'post'], "profil/(:num)", "UserController::profil/$1");
 $routes->get("user_active/(:num)", "AdminController::user_active/$1");
 $routes->get("produit", "ProduitController::index");
-$routes->get("user_delete/(:num)", "UserController::user_delete/$1");
-
-
+$routes->delete("user_delete/(:num)", "UserController::user_delete/$1");
 
 
 // -- routes pour le controller boutique
 $routes->group('boutique', function($routes) {
     $routes->get("active_store/(:num)", "BoutiqueController::active_store/$1");
     $routes->get("boutique_view/(:num)", "BoutiqueController::boutique_view/$1");
-    $routes->get("boutique_delete/(:num)", "BoutiqueController::deleteBoutique/$1");
+    $routes->delete("boutique_delete/(:num)", "BoutiqueController::deleteBoutique/$1");
     $routes->get("update_picture/(:num)", "UserController::update_picture/$1");///////////////////////////////////////////
 });
 
@@ -84,10 +81,10 @@ $routes->group("tenant", function ($routes) {
     $routes->post("produit_add/(:num)", "ProduitController::produit_add/$1");
     $routes->post("produit_edit/(:num)/(:num)", "ProduitController::produit_edit/$1/$2");
     $routes->get("produit_active/(:num)", "ProduitController::produit_active/$1");
-    $routes->get("produit_delete/(:num)", "ProduitController::produit_delete/$1");
+    $routes->delete("produit_delete/(:num)", "ProduitController::produit_delete/$1");
     
     // -- routes pour le controller client
-    $routes->match(['get', 'post'], "client", "ClientController::index");/////////////////////////////////////////
+    $routes->match(['get', 'post'], "client", "ClientController::index");
     $routes->post("client_add/(:num)", "ClientController::client_add/$1");
     $routes->get("client_active/(:num)", "ClientController::client_active/$1");
 });
@@ -102,7 +99,7 @@ $routes->group("client", function ($routes) {
     $routes->post("add_panier/(:num)", "PanierController::add_panier/$1");
     $routes->get("panier_client/(:num)", "PanierController::panier_client/$1");
     $routes->match(['get', 'post'], "panier_detail/(:num)", "PanierController::panier_detail/$1");
-    $routes->get("panier_delete_produit/(:num)/(:num)", "PanierController::panier_delete_produit/$1/$2");
+    $routes->delete("panier_delete_produit/(:num)/(:num)", "PanierController::panier_delete_produit/$1/$2");
     $routes->get("valider_panier/(:num)", "PanierController::valider_panier/$1");
     $routes->get("panier", "PanierController::panier");
 
