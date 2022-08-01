@@ -47,6 +47,7 @@ $routes->get("user_active/(:num)", "AdminController::user_active/$1");
 $routes->get("produit", "ProduitController::index");
 $routes->delete("user_delete/(:num)", "UserController::user_delete/$1");
 $routes->post("update_picture", "UserController::update_picture");
+$routes->post("sendMail", "SendMail::sendMail");
 
 
 // -- routes pour le controller boutique

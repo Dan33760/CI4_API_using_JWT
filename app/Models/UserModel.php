@@ -31,9 +31,9 @@ class UserModel extends Model
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = ['beforeInsert'];
+    protected $beforeInsert   = ['hashPasswordInsert'];
     protected $afterInsert    = [];
-    protected $beforeUpdate   = ['beforeUpdate'];
+    protected $beforeUpdate   = ['hashPasswordUpdate'];
     protected $afterUpdate    = [];
     protected $beforeFind     = [];
     protected $afterFind      = [];
@@ -41,14 +41,14 @@ class UserModel extends Model
     protected $afterDelete    = [];
 
     // Hasher le mot de passe avant insertion
-    protected function beforeInsert(array $data)
+    protected function hashPasswordInsert(array $data)
     {
         $data = $this->passwordhash($data);
         return $data;
     }
 
     // Hasher le mot de passe avant modification
-    protected function beforeUpdate(array $data)
+    protected function hashPasswordUpdate(array $data)
     {
         $data = $this->passwordhash($data);
         return $data;
